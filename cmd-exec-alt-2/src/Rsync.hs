@@ -1,3 +1,5 @@
+{-# LANGUAGE MultiWayIf #-}
+
 module Rsync
   ( RsyncSource (..),
     RsyncDestination (..),
@@ -8,7 +10,6 @@ module Rsync
 where
 
 import Core.Common
-import Data.List (intercalate)
 import Executor
 import Local.Executor
 import Machine
@@ -25,12 +26,12 @@ data RsyncSource = RsyncSrc RootDir RelativeDir
 instance Show RsyncSource where
   show (RsyncSrc rootDir relativeDir) = rootDir </> "." </> relativeDir
 
-data RsyncDestination = RsyncDst Machine FilePath
-  deriving (Eq)
+data RsyncDestination = RsyncDst SomeMachine FilePath
 
 instance Show RsyncDestination where
-  show (RsyncDst LocalMachine fp) = fp
-  show (RsyncDst (RemoteMachine (SshCredentials username hostname _ _)) fp) = username <> "@" <> hostname <> ":" <> fp
+  show (RsyncDst (SomeMachine m) fp) = case (getSshCredentials m) of
+    Nothing -> fp
+    (Just SshCredentials{username = u, hostname = h}) -> u <> "@" <> h <> ":" <> fp
 
 data RsyncOption = Exclude String
   deriving (Eq)
@@ -48,12 +49,14 @@ rsync src dst opts = case buildRsyncCmd src dst opts of
   Nothing -> skipRsyncIO
 
 buildRsyncCmd :: RsyncSource -> RsyncDestination -> [RsyncOption] -> Maybe String
-buildRsyncCmd _ (RsyncDst LocalMachine _) _ = Nothing
-buildRsyncCmd src dst opts = Just ("rsync" <> showDstOpts dst <> showDefaultOpts <> showOpts opts <> " " <> show src <> " " <> show dst)
+buildRsyncCmd src dst@(RsyncDst (SomeMachine m) _) opts = if
+  | isLocal m -> Nothing
+  | otherwise -> Just ("rsync" <> showDstOpts dst <> showDefaultOpts <> showOpts opts <> " " <> show src <> " " <> show dst)
 
 showDstOpts :: RsyncDestination -> String
-showDstOpts (RsyncDst (RemoteMachine creds) _) = showPortOpt creds <> showKeyOpt creds
-showDstOpts _ = ""
+showDstOpts (RsyncDst (SomeMachine m) _) = case (getSshCredentials m) of
+  Nothing -> ""
+  (Just creds) -> showPortOpt creds <> showKeyOpt creds
 
 showPortOpt :: SshCredentials -> String
 showPortOpt (SshCredentials _ _ (Just port) _) = " -P " <> show port

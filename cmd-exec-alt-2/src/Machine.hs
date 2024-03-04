@@ -1,16 +1,33 @@
-module Machine (Machine (..)) where
+{-# LANGUAGE ExistentialQuantification #-}
 
-import Executor
-import Local.Executor
-import Remote.Executor
-import Ssh
+module Machine (Machine (..), CommandExecutor (..), SomeMachine(..)) where
 
-data Machine = LocalMachine | RemoteMachine SshCredentials
-  deriving (Show, Eq)
+import Executor (Command, ExitCode)
+import Ssh (SshCredentials)
 
-instance CommandExecutor Machine where
-  executeCmdIO LocalMachine command = executeLocalShellCmdIO command
-  executeCmdIO (RemoteMachine creds) command = executeRemoteShellCmdIO (Ssh creds command)
+class Show a => CommandExecutor a where
+  executeIO :: a -> Command -> IO (ExitCode, String)
+  runIO :: a -> Command -> IO ExitCode
 
-  runCmdIO LocalMachine command = runLocalShellCmdIO command
-  runCmdIO (RemoteMachine creds) command = runRemoteShellCmdIO (Ssh creds command)
+class (CommandExecutor a) => Machine a where
+  executeCmdIO :: a -> Command -> IO (ExitCode, String)
+  runCmdIO :: a -> Command -> IO ExitCode
+  getSshCredentials :: a -> Maybe SshCredentials
+  isLocal :: a -> Bool
+  isLocal m = case getSshCredentials m of
+    (Just _) -> True
+    Nothing -> False
+
+
+-- https://blog.sumtypeofway.com/posts/existential-haskell.htm
+-- MachineType is a constructor that takes,
+-- for all types a such that a implements Machine,
+-- an a value, and returns a value of type SomeMachine,
+-- the internal a value of which is no longer visible to the world once it’s been applied
+data SomeMachine = forall a . (Machine a) => SomeMachine a
+
+instance Show SomeMachine where
+  show = showSomeMachine
+
+showSomeMachine :: SomeMachine -> String
+showSomeMachine (SomeMachine m) = show m

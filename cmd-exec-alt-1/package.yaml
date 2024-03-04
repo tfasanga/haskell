@@ -1,6 +1,6 @@
 name:                cmdexec1
 version:             0.1.0.0
-github:              "tfasanga/cmd-exec-haskell"
+github:              "tfasanga/haskell"
 license:             BSD-3-Clause
 author:              "Tibor Fasanga"
 maintainer:          "tibor@fasanga.com"
@@ -48,6 +48,19 @@ library:
     - directory
     - filepath
 
+executables:
+  clitool1:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - cmdexec1
+    - mtl
+    - split
+
 tests:
   cmdexec-unit-test:
     main:                Main.hs
@@ -57,7 +70,7 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - cmdexec
+    - cmdexec1
     - split
     - tasty
     - tasty-hunit

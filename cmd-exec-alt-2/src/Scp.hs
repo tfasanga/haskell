@@ -1,3 +1,6 @@
+{-# LANGUAGE MultiWayIf #-}
+{-# LANGUAGE NamedFieldPuns #-}
+
 module Scp (scp, ScpFilePath, scpFp) where
 
 import Core.Common
@@ -6,13 +9,13 @@ import Local.Executor
 import Machine
 import Ssh
 
-data ScpFilePath = ScpFp Machine FilePath
+data ScpFilePath = ScpFp SomeMachine FilePath
 
 instance Show ScpFilePath where
   show = showScpFp
 
 -- | Constructor
-scpFp :: Machine -> FilePath -> ScpFilePath
+scpFp :: SomeMachine -> FilePath -> ScpFilePath
 scpFp = ScpFp
 
 -- | scp command
@@ -27,15 +30,19 @@ skipScpIO = do
   return ExitSuccess
 
 buildScpCmd :: ScpFilePath -> ScpFilePath -> Maybe String
-buildScpCmd (ScpFp LocalMachine _) (ScpFp LocalMachine _) = Nothing
-buildScpCmd src dst = Just ("scp " <> show src <> " " <> show dst)
+buildScpCmd src@(ScpFp (SomeMachine m1) _) dst@(ScpFp (SomeMachine m2) _) = if
+  | isLocal m1 && isLocal m2 -> Nothing
+  | otherwise -> Just ("scp " <> show src <> " " <> show dst)
 
 showScpFp :: ScpFilePath -> String
-showScpFp (ScpFp LocalMachine fp) = fp
-showScpFp (ScpFp (RemoteMachine creds) fp) = sshCredentialsToScpUri creds <> fp
+showScpFp (ScpFp sm@(SomeMachine m) fp) = if
+  | isLocal m -> fp
+  | otherwise -> sshCredentialsToScpUri sm <> fp
 
-sshCredentialsToScpUri :: SshCredentials -> String
-sshCredentialsToScpUri (SshCredentials username hostname port _) = "scp://" <> username <> "@" <> hostname <> showPortOpt port
+sshCredentialsToScpUri :: SomeMachine -> String
+sshCredentialsToScpUri (SomeMachine m) = case (getSshCredentials m) of
+  Nothing -> ""
+  (Just SshCredentials{username, hostname, port}) ->  "scp://" <> username <> "@" <> hostname <> showPortOpt port
 
 showPortOpt :: Maybe PortNum -> String
 showPortOpt Nothing = ""

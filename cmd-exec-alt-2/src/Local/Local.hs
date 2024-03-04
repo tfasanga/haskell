@@ -1,6 +1,6 @@
-module Alternative.Local where
+module Local.Local(LocalMachine(..)) where
 
-import Alternative.Machine
+import Machine
 import Local.Executor (executeLocalShellCmdIO, runLocalShellCmdIO)
 
 data LocalMachine = LocalMachine
@@ -9,8 +9,8 @@ data LocalMachine = LocalMachine
 instance Machine LocalMachine where
   executeCmdIO machine command = executeIO machine command
   runCmdIO machine command = runIO machine command
-  getHostname _ = "localhost"
-  getUsername _ = ""
+  isLocal _ = True
+  getSshCredentials _ = Nothing
 
 instance CommandExecutor LocalMachine where
   executeIO LocalMachine command = executeLocalShellCmdIO command
