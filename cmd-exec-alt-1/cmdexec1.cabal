@@ -60,6 +60,7 @@ executable clitool1
   other-modules:
       Common.Err
       Common.Result
+      Machines
       Paths_cmdexec1
   autogen-modules:
       Paths_cmdexec1
