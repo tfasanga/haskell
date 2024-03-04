@@ -1,4 +1,4 @@
-module Remote.Remote(RemoteMachine(..)) where
+module Remote.Machine(RemoteMachine(..)) where
 
 import Machine
 import Ssh (SshCredentials(..), SshCommand(..))
@@ -8,7 +8,7 @@ data RemoteMachine = RemoteMachine SshCredentials
   deriving (Show, Eq)
 
 instance Machine RemoteMachine where
-  getSshCredentials (RemoteMachine creds) = Just creds 
+  getSshCredentials (RemoteMachine creds) = Just creds
 
 instance CommandExecutor RemoteMachine where
   executeIO (RemoteMachine creds) command = executeRemoteShellCmdIO (Ssh creds command)

@@ -6,10 +6,10 @@ module Machines
   )
 where
 
-import Fake
-import Local.Local
+import Fake.Machine
+import Local.Machine
 import Machine
-import Remote.Remote
+import Remote.Machine
 import Ssh
 
 data MachineName

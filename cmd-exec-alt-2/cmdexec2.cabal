@@ -29,10 +29,10 @@ library
       Core.Err
       Executor
       Local.Executor
-      Local.Local
+      Local.Machine
       Machine
       Remote.Executor
-      Remote.Remote
+      Remote.Machine
       Rsync
       Scp
       Ssh
@@ -62,7 +62,7 @@ executable clitool2
   other-modules:
       Common.Err
       Common.Result
-      Fake
+      Fake.Machine
       Machines
       Paths_cmdexec2
   autogen-modules:

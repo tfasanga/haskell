@@ -1,4 +1,4 @@
-module Local.Local(LocalMachine(..)) where
+module Local.Machine(LocalMachine(..)) where
 
 import Machine
 import Local.Executor (executeLocalShellCmdIO, runLocalShellCmdIO)
