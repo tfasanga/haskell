@@ -17,17 +17,14 @@ class (CommandExecutor a) => Machine a where
 
 
 -- https://blog.sumtypeofway.com/posts/existential-haskell.htm
--- MachineType is a constructor that takes,
+-- SomeMachine is a constructor that takes,
 -- for all types a such that a implements Machine,
 -- an a value, and returns a value of type SomeMachine,
 -- the internal a value of which is no longer visible to the world once it’s been applied
 data SomeMachine = forall a . (Machine a) => SomeMachine a
 
 instance Show SomeMachine where
-  show = showSomeMachine
-
-showSomeMachine :: SomeMachine -> String
-showSomeMachine (SomeMachine m) = show m
+  show (SomeMachine m) = show m
 
 instance CommandExecutor SomeMachine where
   runIO (SomeMachine m) c = runIO m c

@@ -17,10 +17,12 @@ runProgram = do
   let ms = getMachines
   let m1 = getMachine ms DevelopmentMachine
   let m2 = getMachine ms BuildMachine
-  let m3 = getMachine ms TestMachine
+  let m3 = getMachine ms TestLocalMachine
+  let m4 = getMachine ms TestRemoteMachine
   putStrLn (show m1)
   putStrLn (show m2)
   putStrLn (show m3)
+  putStrLn (show m4)
   ec <- runIO m1 "ls -l"
   putStrLn ("executed: " <> show ec)
 

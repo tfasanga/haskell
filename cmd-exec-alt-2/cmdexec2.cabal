@@ -62,7 +62,10 @@ executable clitool2
   other-modules:
       Common.Err
       Common.Result
-      Fake.Machine
+      Fake.Local.Executor
+      Fake.Local.Machine
+      Fake.Remote.Executor
+      Fake.Remote.Machine
       Machines
       Paths_cmdexec2
   autogen-modules:
