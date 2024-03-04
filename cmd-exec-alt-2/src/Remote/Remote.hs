@@ -8,9 +8,6 @@ data RemoteMachine = RemoteMachine SshCredentials
   deriving (Show, Eq)
 
 instance Machine RemoteMachine where
-  executeCmdIO machine command = executeIO machine command
-  runCmdIO machine command = runIO machine command
-  isLocal _ = False
   getSshCredentials (RemoteMachine creds) = Just creds 
 
 instance CommandExecutor RemoteMachine where

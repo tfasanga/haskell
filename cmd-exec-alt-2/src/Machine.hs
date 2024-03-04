@@ -10,8 +10,6 @@ class Show a => CommandExecutor a where
   runIO :: a -> Command -> IO ExitCode
 
 class (CommandExecutor a) => Machine a where
-  executeCmdIO :: a -> Command -> IO (ExitCode, String)
-  runCmdIO :: a -> Command -> IO ExitCode
   getSshCredentials :: a -> Maybe SshCredentials
   isLocal :: a -> Bool
   isLocal m = case getSshCredentials m of
@@ -31,3 +29,10 @@ instance Show SomeMachine where
 
 showSomeMachine :: SomeMachine -> String
 showSomeMachine (SomeMachine m) = show m
+
+instance CommandExecutor SomeMachine where
+  runIO (SomeMachine m) c = runIO m c
+  executeIO (SomeMachine m) c = executeIO m c
+
+instance Machine SomeMachine where
+  getSshCredentials (SomeMachine m) = getSshCredentials m

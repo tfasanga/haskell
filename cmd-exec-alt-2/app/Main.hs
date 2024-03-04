@@ -3,6 +3,7 @@ module Main (main) where
 import Common.Err
 import Common.Result
 import Machines
+import Machine
 
 main :: IO ()
 main = run >>= handleResult
@@ -20,6 +21,8 @@ runProgram = do
   putStrLn (show m1)
   putStrLn (show m2)
   putStrLn (show m3)
+  ec <- runIO m1 "ls -l"
+  putStrLn ("executed: " <> show ec)
 
 handleResult :: Result () -> IO ()
 handleResult (Left err) = putStrLn (show err)
