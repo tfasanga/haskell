@@ -4,6 +4,7 @@ module Machine (Machine (..), CommandExecutor (..), SomeMachine(..)) where
 
 import Executor (Command, ExitCode)
 import Ssh (SshCredentials)
+import Data.Maybe (isJust)
 
 class Show a => CommandExecutor a where
   executeIO :: a -> Command -> IO (ExitCode, String)
@@ -12,9 +13,7 @@ class Show a => CommandExecutor a where
 class (CommandExecutor a) => Machine a where
   getSshCredentials :: a -> Maybe SshCredentials
   isLocal :: a -> Bool
-  isLocal m = case getSshCredentials m of
-    (Just _) -> True
-    Nothing -> False
+  isLocal = isJust . getSshCredentials
 
 
 -- https://blog.sumtypeofway.com/posts/existential-haskell.htm

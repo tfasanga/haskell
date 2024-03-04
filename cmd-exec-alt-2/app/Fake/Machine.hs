@@ -1,4 +1,4 @@
-module Fake(FakeMachine(..)) where
+module Fake.Machine(FakeMachine(..)) where
 
 import Machine
 
