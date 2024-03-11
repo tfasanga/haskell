@@ -1,17 +1,23 @@
 module Executor
   ( CommandExecutor (..),
     Command,
+    ExecuteCmd,
+    RunCmd,
     ExitCode (..),
   )
 where
-
-type Command = String
 
 data ExitCode
   = ExitSuccess
   | ExitFailure Int
   deriving (Eq, Ord, Read, Show)
 
+type Command = String
+
+type ExecuteCmd = Command -> IO (ExitCode, String)
+
+type RunCmd = Command -> IO ExitCode
+
 class CommandExecutor a where
-  executeCmdIO :: a -> Command -> IO (ExitCode, String)
-  runCmdIO :: a -> Command -> IO ExitCode
+  executeCmdIO :: a -> ExecuteCmd
+  runCmdIO :: a -> RunCmd

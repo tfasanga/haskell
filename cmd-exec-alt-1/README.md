@@ -9,15 +9,23 @@ data Machine = LocalMachine | RemoteMachine SshCredentials
   deriving (Show, Eq)
 ```
 
+Define `CommandExecutor` typeclass with commands (side effects) running in `IO`:
+
+```haskell
+class CommandExecutor a where
+  executeCmdIO :: a -> Command -> IO (ExitCode, String)
+  runCmdIO :: a -> Command -> IO ExitCod
+```
+
 Then implements `CommandExecutor` typeclass for local and remote machine: 
 
 ```haskell
 instance CommandExecutor Machine where
-  executeCmdIO LocalMachine command = executeLocalShellCmdIO command
-  executeCmdIO (RemoteMachine creds) command = executeRemoteShellCmdIO (Ssh creds command)
+  executeCmdIO LocalMachine = executeLocalShellCmdIO
+  executeCmdIO (RemoteMachine creds) = executeRemoteShellCmdIO creds
 
-  runCmdIO LocalMachine command = runLocalShellCmdIO command
-  runCmdIO (RemoteMachine creds) command = runRemoteShellCmdIO (Ssh creds command)
+  runCmdIO LocalMachine = runLocalShellCmdIO
+  runCmdIO (RemoteMachine creds) = runRemoteShellCmdIO creds
 ```
 
 # Libraries

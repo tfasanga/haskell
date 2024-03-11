@@ -9,8 +9,8 @@ data Machine = LocalMachine | RemoteMachine SshCredentials
   deriving (Show, Eq)
 
 instance CommandExecutor Machine where
-  executeCmdIO LocalMachine command = executeLocalShellCmdIO command
-  executeCmdIO (RemoteMachine creds) command = executeRemoteShellCmdIO (Ssh creds command)
+  executeCmdIO LocalMachine = executeLocalShellCmdIO
+  executeCmdIO (RemoteMachine creds) = executeRemoteShellCmdIO creds
 
-  runCmdIO LocalMachine command = runLocalShellCmdIO command
-  runCmdIO (RemoteMachine creds) command = runRemoteShellCmdIO (Ssh creds command)
+  runCmdIO LocalMachine = runLocalShellCmdIO
+  runCmdIO (RemoteMachine creds) = runRemoteShellCmdIO creds

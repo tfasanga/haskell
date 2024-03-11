@@ -8,7 +8,6 @@ module Rsync
 where
 
 import Core.Common
-import Data.List (intercalate)
 import Executor
 import Local.Executor
 import Machine
