@@ -3,11 +3,12 @@
 Alternative 2:
 
 Use typeclass for `CommandExecutor` and `Machine`.
+`Machine` "extends" `CommandExecutor`.
 
 ```haskell
 class Show a => CommandExecutor a where
-  executeIO :: a -> Command -> IO (ExitCode, String)
-  runIO :: a -> Command -> IO ExitCode
+  executeCmdIO :: a -> ExecuteCmd
+  runCmdIO :: a -> RunCmd
 
 class (CommandExecutor a) => Machine a where
   getSshCredentials :: a -> Maybe SshCredentials
@@ -26,11 +27,40 @@ instance Show SomeMachine where
   show (SomeMachine m) = show m
 
 instance CommandExecutor SomeMachine where
-  runIO (SomeMachine m) c = runIO m c
-  executeIO (SomeMachine m) c = executeIO m c
+  runCmdIO (SomeMachine m) c = runCmdIO m c
+  executeCmdIO (SomeMachine m) c = executeCmdIO m c
 
 instance Machine SomeMachine where
   getSshCredentials (SomeMachine m) = getSshCredentials m
+```
+
+Local machine implementation:
+
+```haskell
+data LocalMachine = LocalMachine
+  deriving (Show, Eq)
+
+instance CommandExecutor LocalMachine where
+  executeCmdIO LocalMachine = executeLocalShellCmdIO
+  runCmdIO LocalMachine = runLocalShellCmdIO
+
+instance Machine LocalMachine where
+  getSshCredentials _ = Nothing
+```
+
+Remote machine implementation:
+
+```haskell
+data RemoteMachine = RemoteMachine SshCredentials
+  deriving (Show, Eq)
+
+instance CommandExecutor RemoteMachine where
+  executeCmdIO (RemoteMachine creds) = executeRemoteShellCmdIO creds
+  runCmdIO (RemoteMachine creds) = runRemoteShellCmdIO creds
+
+instance Machine RemoteMachine where
+  getSshCredentials (RemoteMachine creds) = Just creds
+
 ```
 
 # Libraries
