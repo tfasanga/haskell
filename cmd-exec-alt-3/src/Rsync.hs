@@ -7,10 +7,7 @@ module Rsync
   )
 where
 
-import Core.Common
-import Data.List (intercalate)
 import Executor
-import Local.Executor
 import Machine
 import Ssh
 import System.FilePath ((</>))
@@ -42,10 +39,10 @@ instance Show RsyncOption where
 -- scp -e 'ssh -p 2222'
 -- scp -P 2222
 
-rsync :: RsyncSource -> RsyncDestination -> [RsyncOption] -> IO ExitCode
+rsync :: RsyncSource -> RsyncDestination -> [RsyncOption] -> ExecIO ExitCode
 rsync src dst opts = case buildRsyncCmd src dst opts of
-  (Just cmd) -> runLocalShellCmdIO cmd
-  Nothing -> skipRsyncIO
+  (Just cmd) -> runLocalShellCmdExecIO cmd
+  Nothing -> liftIO $ skipRsyncIO
 
 buildRsyncCmd :: RsyncSource -> RsyncDestination -> [RsyncOption] -> Maybe String
 buildRsyncCmd _ (RsyncDst LocalMachine _) _ = Nothing
@@ -75,5 +72,5 @@ showDefaultOpts = " --archive --relative --delete --verbose -o"
 
 skipRsyncIO :: IO ExitCode
 skipRsyncIO = do
-  println "skipping rsync, both source and destination machines are local"
+  putStrLn "skipping rsync, both source and destination machines are local"
   return ExitSuccess

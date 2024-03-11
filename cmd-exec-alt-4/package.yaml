@@ -1,4 +1,4 @@
-name:                cmdexec3
+name:                cmdexec4
 version:             0.1.0.0
 github:              "tfasanga/haskell"
 license:             BSD-3-Clause
@@ -57,7 +57,7 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - cmdexec3
+    - cmdexec4
     - mtl
     - split
 
@@ -70,7 +70,7 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - cmdexec3
+    - cmdexec4
     - split
     - tasty
     - tasty-hunit

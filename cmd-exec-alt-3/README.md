@@ -9,15 +9,33 @@ data Machine = LocalMachine | RemoteMachine SshCredentials
   deriving (Show, Eq)
 ```
 
+The `ExecutorContext` can be used to define custom `ExecuteCmd` and/or `RunCmd`.
+Use `ExecIO` reader monad with `ExecutorContext`:
+
+```haskell
+data ExecutorContext = EC (Maybe ExecuteCmd) (Maybe RunCmd)
+
+newtype ExecIO a = ExecStack {_getReaderT :: ReaderT ExecutorContext IO a}
+```
+
+Define `CommandExecutor` typeclass with `ExecIO`:
+
+```haskell
+class CommandExecutor a where
+  executeCmdIO :: a -> Command -> ExecIO (ExitCode, String)
+  runCmdIO :: a -> Command -> ExecIO ExitCode
+
+```
+
 Then implements `CommandExecutor` typeclass for local and remote machine: 
 
 ```haskell
 instance CommandExecutor Machine where
-  executeCmdIO LocalMachine command = executeLocalShellCmdIO command
-  executeCmdIO (RemoteMachine creds) command = executeRemoteShellCmdIO (Ssh creds command)
+  executeCmdIO LocalMachine = executeLocalShellCmdExecIO
+  executeCmdIO (RemoteMachine creds) = executeRemoteShellCmdExecIO creds
 
-  runCmdIO LocalMachine command = runLocalShellCmdIO command
-  runCmdIO (RemoteMachine creds) command = runRemoteShellCmdIO (Ssh creds command)
+  runCmdIO LocalMachine = runLocalShellCmdExecIO
+  runCmdIO (RemoteMachine creds) = runRemoteShellCmdExecIO creds
 ```
 
 # Libraries

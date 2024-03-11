@@ -12,7 +12,7 @@ import System.IO (Handle, hGetContents)
 import System.Process
 
 -- Execute an external command and return its output combined with error
-executeLocalShellCmdIO :: String -> IO (ExitCode, String)
+executeLocalShellCmdIO :: ExecuteCmd
 executeLocalShellCmdIO cmd = do
   putStrLn cmd
   (readEnd, writeEnd) <- createPipe
@@ -48,7 +48,7 @@ executeLocalShellCmdErrIO cmd = do
       return (translateExitCode exitCode, content, contentErr)
 
 -- Run an external command
-runLocalShellCmdIO :: String -> IO ExitCode
+runLocalShellCmdIO :: RunCmd
 runLocalShellCmdIO cmd = do
   putStrLn cmd
   withCreateProcess_

@@ -43,6 +43,7 @@ ghc-options:
 library:
   source-dirs: src
   dependencies:
+    - mtl
     - split
     - process
     - directory

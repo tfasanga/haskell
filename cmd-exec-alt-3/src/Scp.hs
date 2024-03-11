@@ -1,8 +1,6 @@
 module Scp (scp, ScpFilePath, scpFp) where
 
-import Core.Common
 import Executor
-import Local.Executor
 import Machine
 import Ssh
 
@@ -16,14 +14,14 @@ scpFp :: Machine -> FilePath -> ScpFilePath
 scpFp = ScpFp
 
 -- | scp command
-scp :: ScpFilePath -> ScpFilePath -> IO ExitCode
+scp :: ScpFilePath -> ScpFilePath -> ExecIO ExitCode
 scp src dst = case buildScpCmd src dst of
-  (Just cmd) -> runLocalShellCmdIO cmd
-  Nothing -> skipScpIO
+  (Just cmd) -> runLocalShellCmdExecIO cmd
+  Nothing -> liftIO $ skipScpIO
 
 skipScpIO :: IO ExitCode
 skipScpIO = do
-  println "skipping scp, both source and destination machines are local"
+  putStrLn "skipping scp, both source and destination machines are local"
   return ExitSuccess
 
 buildScpCmd :: ScpFilePath -> ScpFilePath -> Maybe String

@@ -25,12 +25,10 @@ source-repository head
 
 library
   exposed-modules:
-      Core.Common
       Core.Err
       Executor
       Local.Executor
       Machine
-      Remote.Executor
       Rsync
       Scp
       Ssh
@@ -51,6 +49,7 @@ library
       base >=4.7 && <5
     , directory
     , filepath
+    , mtl
     , process
     , split
   default-language: Haskell2010
