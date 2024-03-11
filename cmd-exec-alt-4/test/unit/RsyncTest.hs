@@ -1,6 +1,6 @@
 module RsyncTest (rsyncUnitTests) where
 
-import Machine
+import MachineContext
 import Rsync
 import Ssh
 import Test.Tasty

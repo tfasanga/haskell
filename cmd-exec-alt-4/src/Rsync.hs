@@ -8,7 +8,6 @@ module Rsync
 where
 
 import Core.Common
-import Data.List (intercalate)
 import Executor
 import Local.Executor
 import Machine
@@ -24,11 +23,11 @@ data RsyncSource = RsyncSrc RootDir RelativeDir
 instance Show RsyncSource where
   show (RsyncSrc rootDir relativeDir) = rootDir </> "." </> relativeDir
 
-data RsyncDestination = RsyncDst Machine FilePath
+data RsyncDestination = RsyncDst MachineContext FilePath
 
 instance Show RsyncDestination where
-  show (RsyncDst LocalMachine fp) = fp
-  show (RsyncDst (RemoteMachine (SshCredentials username hostname _ _)) fp) = username <> "@" <> hostname <> ":" <> fp
+  show (RsyncDst (MachineContext {machine = LocalMachine}) fp) = fp
+  show (RsyncDst ((MachineContext {machine = RemoteMachine (SshCredentials username hostname _ _)})) fp) = username <> "@" <> hostname <> ":" <> fp
 
 data RsyncOption = Exclude String
 
@@ -45,11 +44,11 @@ rsync src dst opts = case buildRsyncCmd src dst opts of
   Nothing -> skipRsyncIO
 
 buildRsyncCmd :: RsyncSource -> RsyncDestination -> [RsyncOption] -> Maybe String
-buildRsyncCmd _ (RsyncDst LocalMachine _) _ = Nothing
+buildRsyncCmd _ (RsyncDst (MachineContext {machine = LocalMachine}) _) _ = Nothing
 buildRsyncCmd src dst opts = Just ("rsync" <> showDstOpts dst <> showDefaultOpts <> showOpts opts <> " " <> show src <> " " <> show dst)
 
 showDstOpts :: RsyncDestination -> String
-showDstOpts (RsyncDst (RemoteMachine creds) _) = showPortOpt creds <> showKeyOpt creds
+showDstOpts (RsyncDst ((MachineContext {machine = RemoteMachine creds})) _) = showPortOpt creds <> showKeyOpt creds
 showDstOpts _ = ""
 
 showPortOpt :: SshCredentials -> String

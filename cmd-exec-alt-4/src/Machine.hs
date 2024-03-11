@@ -1,30 +1,32 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Machine (Machine (..), isLocalMachine) where
+module Machine (MachineContext (..), isLocalMachine, Machine (..)) where
 
-import Data.Maybe (isNothing)
 import Executor
 import Local.Executor
 import Remote.Executor
 import Ssh
 
-data Machine = CustomMachine
+data Machine = LocalMachine | RemoteMachine SshCredentials
+  deriving (Show, Eq)
+
+data MachineContext = MachineContext
   { executor :: Maybe CustomExecutor,
-    sshCredentials :: Maybe SshCredentials
+    machine :: Machine
   }
 
-instance Show Machine where
-  show CustomMachine {sshCredentials = Nothing} = "localhost"
-  show CustomMachine {sshCredentials = creds} = show creds
+instance Show MachineContext where
+  show MachineContext {machine = LocalMachine} = "localhost"
+  show MachineContext {machine = m} = show m
 
-instance CommandExecutor Machine where
-  executeCmdIO CustomMachine {executor, sshCredentials} command = case sshCredentials of
-    Just creds -> executeRemoteCmdIO executor creds command
-    Nothing -> executeLocalCmdIO executor command
+instance CommandExecutor MachineContext where
+  executeCmdIO MachineContext {executor, machine} command = case machine of
+    RemoteMachine creds -> executeRemoteCmdIO executor creds command
+    LocalMachine -> executeLocalCmdIO executor command
 
-  runCmdIO CustomMachine {executor, sshCredentials} command = case sshCredentials of
-    Just creds -> runRemoteCmdIO executor creds command
-    Nothing -> runLocalCmdIO executor command
+  runCmdIO MachineContext {executor, machine} command = case machine of
+    RemoteMachine creds -> runRemoteCmdIO executor creds command
+    LocalMachine -> runLocalCmdIO executor command
 
 executeLocalCmdIO :: Maybe CustomExecutor -> ExecuteCmd
 executeLocalCmdIO (Just CustomExecutor {executeCmd}) = executeCmd
@@ -42,6 +44,7 @@ runRemoteCmdIO :: Maybe CustomExecutor -> SshCredentials -> RunCmd
 runRemoteCmdIO (Just CustomExecutor {runCmd}) _ = runCmd
 runRemoteCmdIO Nothing creds = runRemoteShellCmdIO creds
 
-
-isLocalMachine :: Machine -> Bool
-isLocalMachine CustomMachine {sshCredentials} = isNothing sshCredentials
+isLocalMachine :: MachineContext -> Bool
+isLocalMachine MachineContext {machine} = case machine of
+  LocalMachine -> True
+  _ -> False

@@ -4,6 +4,8 @@ module Main (main) where
 import Common.Err
 import Common.Result
 import Machines
+import Executor
+import Machine
 
 main :: IO ()
 main = run >>= handleResult
@@ -21,6 +23,9 @@ runProgram = do
   putStrLn (show m1)
   putStrLn (show m2)
   putStrLn (show m3)
+  let executor = Nothing
+  rc <- runCmdIO (MachineContext executor m1) "ls -l"
+  putStrLn ("executed: " <> show rc)
 
 handleResult :: Result () -> IO ()
 handleResult (Left err) = putStrLn (show err)

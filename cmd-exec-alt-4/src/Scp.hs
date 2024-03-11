@@ -6,13 +6,13 @@ import Local.Executor
 import Machine
 import Ssh
 
-data ScpFilePath = ScpFp Machine FilePath
+data ScpFilePath = ScpFp MachineContext FilePath
 
 instance Show ScpFilePath where
   show = showScpFp
 
 -- | Constructor
-scpFp :: Machine -> FilePath -> ScpFilePath
+scpFp :: MachineContext -> FilePath -> ScpFilePath
 scpFp = ScpFp
 
 -- | scp command
@@ -27,12 +27,12 @@ skipScpIO = do
   return ExitSuccess
 
 buildScpCmd :: ScpFilePath -> ScpFilePath -> Maybe String
-buildScpCmd (ScpFp LocalMachine _) (ScpFp LocalMachine _) = Nothing
+buildScpCmd (ScpFp (MachineContext {machine = LocalMachine}) _) (ScpFp (MachineContext {machine = LocalMachine}) _) = Nothing
 buildScpCmd src dst = Just ("scp " <> show src <> " " <> show dst)
 
 showScpFp :: ScpFilePath -> String
-showScpFp (ScpFp LocalMachine fp) = fp
-showScpFp (ScpFp (RemoteMachine creds) fp) = sshCredentialsToScpUri creds <> fp
+showScpFp (ScpFp (MachineContext {machine = LocalMachine}) fp) = fp
+showScpFp (ScpFp (MachineContext {machine = RemoteMachine creds}) fp) = sshCredentialsToScpUri creds <> fp
 
 sshCredentialsToScpUri :: SshCredentials -> String
 sshCredentialsToScpUri (SshCredentials username hostname port _) = "scp://" <> username <> "@" <> hostname <> showPortOpt port
