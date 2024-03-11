@@ -1,6 +1,6 @@
-# cmd-exec-alt-1
+# cmd-exec-alt-3
 
-Alternative 1:
+Alternative 3:
 
 Uses sum type for local and remote machine:
 
@@ -9,7 +9,8 @@ data Machine = LocalMachine | RemoteMachine SshCredentials
   deriving (Show, Eq)
 ```
 
-The `ExecutorContext` can be used to define custom `ExecuteCmd` and/or `RunCmd`.
+The `ExecutorContext` in `ExecIO` can be used to define custom `ExecuteCmd` and/or `RunCmd` functions.
+
 Use `ExecIO` reader monad with `ExecutorContext`:
 
 ```haskell
@@ -18,13 +19,12 @@ data ExecutorContext = EC (Maybe ExecuteCmd) (Maybe RunCmd)
 newtype ExecIO a = ExecStack {_getReaderT :: ReaderT ExecutorContext IO a}
 ```
 
-Define `CommandExecutor` typeclass with `ExecIO`:
+Define `CommandExecutor` typeclass with commands (side effects) running in `ExecIO` (instead of `IO`):
 
 ```haskell
 class CommandExecutor a where
   executeCmdIO :: a -> Command -> ExecIO (ExitCode, String)
   runCmdIO :: a -> Command -> ExecIO ExitCode
-
 ```
 
 Then implements `CommandExecutor` typeclass for local and remote machine: 
