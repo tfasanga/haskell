@@ -4,6 +4,7 @@ module Main (main) where
 import Common.Err
 import Common.Result
 import Machines
+import Executor
 
 main :: IO ()
 main = run >>= handleResult
@@ -21,8 +22,12 @@ runProgram = do
   putStrLn (show m1)
   putStrLn (show m2)
   putStrLn (show m3)
-  ec <- runIO m1 "ls -l"
-  putStrLn ("executed: " <> show ec)
+  let ec = EC Nothing Nothing
+  rc <- runExec (runCmdIO m1 "ls -l") ec
+  putStrLn ("executed: " <> show rc)
+--  let ec2 = EC (Just ) Nothing
+--  rc2 <- runExec (runCmdIO m1 "ls -l") ec2
+--  putStrLn ("executed: " <> show rc2)
 
 handleResult :: Result () -> IO ()
 handleResult (Left err) = putStrLn (show err)
