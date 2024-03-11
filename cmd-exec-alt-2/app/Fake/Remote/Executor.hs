@@ -7,10 +7,14 @@ where
 import Executor
 import Ssh
 
-executeFakeRemoteShellCmdIO :: SshCommand -> IO (ExitCode, String)
-executeFakeRemoteShellCmdIO ssh = return (ExitSuccess, show ssh)
+executeFakeRemoteShellCmdIO :: SshCredentials -> ExecuteCmd
+executeFakeRemoteShellCmdIO creds cmd = return (ExitSuccess, actualCmd)
+  where
+    actualCmd = show (Ssh creds cmd)
 
-runFakeRemoteShellCmdIO :: SshCommand -> IO ExitCode
-runFakeRemoteShellCmdIO ssh = do
-  putStrLn (show ssh)
+runFakeRemoteShellCmdIO :: SshCredentials -> RunCmd
+runFakeRemoteShellCmdIO creds cmd = do
+  putStrLn actualCmd
   return ExitSuccess
+  where
+    actualCmd = show (Ssh creds cmd)

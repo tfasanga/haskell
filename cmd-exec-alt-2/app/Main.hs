@@ -23,7 +23,7 @@ runProgram = do
   putStrLn (show m2)
   putStrLn (show m3)
   putStrLn (show m4)
-  ec <- runIO m1 "ls -l"
+  ec <- runCmdIO m1 "ls -l"
   putStrLn ("executed: " <> show ec)
 
 handleResult :: Result () -> IO ()

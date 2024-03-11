@@ -8,8 +8,8 @@ data FakeRemoteMachine = FakeRemoteMachine SshCredentials
   deriving (Show, Eq)
 
 instance CommandExecutor FakeRemoteMachine where
-  executeIO (FakeRemoteMachine creds) command = executeFakeRemoteShellCmdIO (Ssh creds command)
-  runIO (FakeRemoteMachine creds) command = runFakeRemoteShellCmdIO (Ssh creds command)
+  executeCmdIO (FakeRemoteMachine creds) = executeFakeRemoteShellCmdIO creds
+  runCmdIO (FakeRemoteMachine creds) = runFakeRemoteShellCmdIO creds
 
 instance Machine FakeRemoteMachine where
   getSshCredentials (FakeRemoteMachine creds) = Just creds
